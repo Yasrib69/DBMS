@@ -109,6 +109,7 @@ public class Table {
 
     public void clear() {
         records.clear();
+        index = new BST();
     }
 
     public void save() {

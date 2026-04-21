@@ -137,13 +137,12 @@ public class Parser {
 
         String tableName = input.split(" ")[1].replace(";", "").trim();
         Table t = db.getTable(tableName);
-
         if (t == null) {
-            System.out.println("Error: Table '" + tableName + "' does not exist");
-            return;
+           System.out.println("Error: Table '" + tableName + "' does not exist");
+           return;
         }
-
         t.clear();
+        t.save();  // 🔥 important fix
         System.out.println("Deleted from " + tableName);
     }
 
