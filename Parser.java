@@ -34,8 +34,9 @@ public class Parser {
         }
     }
 
+    // ---------------- CREATE ----------------
     private void createTable(String input) {
-        String name = input.split(" ")[2];
+        String name = input.split(" ")[2].trim();
 
         String inside = input.substring(input.indexOf("(") + 1, input.lastIndexOf(")"));
         String[] attrs = inside.split(",");
@@ -45,7 +46,7 @@ public class Parser {
         String pk = null;
 
         for (String a : attrs) {
-            String[] p = a.trim().split(" ");
+            String[] p = a.trim().split("\\s+");
             columns.add(p[0]);
             types.add(p[1]);
 
@@ -58,14 +59,23 @@ public class Parser {
         System.out.println("Table created");
     }
 
+    // ---------------- INSERT ----------------
     private void insert(String input) {
-        String name = input.split(" ")[1];
+        String name = input.split(" ")[1].trim();
         Table t = db.getTable(name);
 
-        String values = input.substring(input.indexOf("(") + 1, input.indexOf(")"));
+        if (t == null) {
+            System.out.println("Error: Table '" + name + "' does not exist");
+            return;
+        }
+
+        String values = input.substring(input.indexOf("(") + 1, input.lastIndexOf(")"));
         t.insert(new Record(values.split(",")));
+
+        System.out.println("Inserted into " + name);
     }
 
+    // ---------------- SELECT ----------------
     private void select(String input) {
 
         String upper = input.toUpperCase();
@@ -79,54 +89,76 @@ public class Parser {
 
         if (hasWhere) {
             tableName = afterFrom.substring(0, afterFrom.indexOf("WHERE")).trim();
-            whereClause = afterFrom.substring(afterFrom.indexOf("WHERE") + 5).replace(";", "").trim();
+            whereClause = afterFrom.substring(afterFrom.indexOf("WHERE") + 5)
+                    .replace(";", "").trim();
         } else {
             tableName = afterFrom.replace(";", "").trim();
         }
 
         Table t = db.getTable(tableName);
+
         if (t == null) {
             System.out.println("Error: Table '" + tableName + "' does not exist");
             return;
         }
+
         Condition cond = (whereClause != null) ? new Condition(whereClause) : null;
 
         List<Record> result = t.select(cond, null);
 
+        // ---------- AGGREGATES ----------
         if (beforeFrom.contains("(")) {
             String func = beforeFrom.substring(0, beforeFrom.indexOf("(")).trim().toUpperCase();
-            String attr = beforeFrom.substring(beforeFrom.indexOf("(") + 1, beforeFrom.indexOf(")")).trim();
+            String attr = beforeFrom.substring(beforeFrom.indexOf("(") + 1,
+                    beforeFrom.indexOf(")")).trim();
 
             t.aggregate(func, attr, result);
             return;
         }
 
+        // ---------- NORMAL SELECT ----------
         List<String> attrs;
-        if (beforeFrom.equals("*")) attrs = t.columns;
-        else attrs = Arrays.asList(beforeFrom.split(","));
+        if (beforeFrom.equals("*")) {
+            attrs = t.columns;
+        } else {
+            attrs = Arrays.asList(beforeFrom.split(","));
+        }
 
         t.print(result, attrs);
     }
 
+    // ---------------- UPDATE ----------------
     private void update(String input) {
-        System.out.println("UPDATE executed");
+        System.out.println("UPDATE not fully implemented");
     }
 
+    // ---------------- DELETE ----------------
     private void delete(String input) {
-        String table = input.split(" ")[1];
-        db.getTable(table).clear();
-        System.out.println("Deleted");
+
+        String tableName = input.split(" ")[1].replace(";", "").trim();
+        Table t = db.getTable(tableName);
+
+        if (t == null) {
+            System.out.println("Error: Table '" + tableName + "' does not exist");
+            return;
+        }
+
+        t.clear();
+        System.out.println("Deleted from " + tableName);
     }
 
+    // ---------------- DESCRIBE ----------------
     private void describe(String input) {
         db.describeAll();
     }
 
+    // ---------------- INPUT ----------------
     private void inputFile(String input) {
         String file = input.split(" ")[1].replace(";", "");
         FileManager.executeFile(file, this);
     }
 
+    // ---------------- LET ----------------
     private void let(String input) {
 
         String[] parts = input.split("SELECT");
@@ -134,12 +166,18 @@ public class Parser {
         String header = parts[0];
         String selectPart = "SELECT" + parts[1];
 
-        String[] tokens = header.split(" ");
+        String[] tokens = header.trim().split("\\s+");
+
         String newTableName = tokens[1];
         String key = tokens[3];
 
         String tableName = selectPart.split("FROM")[1].replace(";", "").trim();
         Table oldTable = db.getTable(tableName);
+
+        if (oldTable == null) {
+            System.out.println("Error: Table '" + tableName + "' does not exist");
+            return;
+        }
 
         List<Record> result = oldTable.select(null, null);
 
@@ -150,9 +188,11 @@ public class Parser {
         }
 
         db.addTable(newTableName, newTable);
+
         System.out.println("LET created table: " + newTableName);
     }
 
+    // ---------------- SAVE ----------------
     public void saveAll() {
         for (Table t : db.tables.values()) {
             t.save();
