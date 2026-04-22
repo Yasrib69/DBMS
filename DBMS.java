@@ -2,7 +2,6 @@ import java.util.Scanner;
 
 public class DBMS {
     public static void main(String[] args) {
-
         Scanner scanner = new Scanner(System.in);
         Parser parser = new Parser();
 
@@ -13,16 +12,14 @@ public class DBMS {
 
             String input = "";
 
-            // Read until semicolon
             while (!input.trim().endsWith(";")) {
                 input += scanner.nextLine() + " ";
             }
 
             input = input.trim();
 
-            // 🔥 FIXED EXIT (handles all cases)
             if (input.toUpperCase().startsWith("EXIT")) {
-                parser.saveAll();  // 🔥 VERY IMPORTANT
+                parser.saveAll();
                 System.out.println("Saved. Exiting...");
                 break;
             }

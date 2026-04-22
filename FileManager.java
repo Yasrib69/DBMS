@@ -12,9 +12,7 @@ public class FileManager {
     }
 
     public static Table loadTable(String filename) {
-
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-
             int numCols = Integer.parseInt(br.readLine());
 
             List<String> cols = new ArrayList<>();
@@ -29,19 +27,20 @@ public class FileManager {
 
             String line = br.readLine();
 
-            if (line.startsWith("PRIMARY")) {
+            if (line != null && line.startsWith("PRIMARY")) {
                 pk = line.split(" ")[1];
                 br.readLine();
             }
 
-            Table t = new Table(filename.replace(".tbl",""), cols, types, pk);
+            Table t = new Table(filename.replace(".tbl", ""), cols, types, pk);
 
             while ((line = br.readLine()) != null) {
-                t.insert(new Record(line.split(",")));
+                if (!line.trim().isEmpty()) {
+                    t.insert(new Record(line.split(",")));
+                }
             }
 
             return t;
-
         } catch (Exception e) {
             return null;
         }

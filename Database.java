@@ -8,7 +8,12 @@ public class Database {
     }
 
     public Table getTable(String name) {
-        return tables.get(name.toUpperCase());
+        if (name == null) return null;
+        return tables.get(name.trim().toUpperCase());
+    }
+
+    public boolean hasTable(String name) {
+        return getTable(name) != null;
     }
 
     public void describeAll() {
