@@ -4,5 +4,5 @@ How to run:
 
 or,
     1. Run DBMS.java in IDE
-    2. run test file as: Input DBMS/sample-project-test-data.txt output DBMS/file10.output;
+    2. run test file as: Input sample-project-test-data.txt output file10.output;
     
