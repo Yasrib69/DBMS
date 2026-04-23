@@ -1,19 +1,28 @@
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Database {
-    Map<String, Table> tables = new HashMap<>();
+    Map<String, Table> tables = new LinkedHashMap<>();
+    String currentDB = "";
 
     public void addTable(String name, Table table) {
-        tables.put(name.toUpperCase(), table);
+        tables.put(normalize(name), table);
     }
 
     public Table getTable(String name) {
-        if (name == null) return null;
-        return tables.get(name.trim().toUpperCase());
+        return tables.get(normalize(name));
     }
 
     public boolean hasTable(String name) {
         return getTable(name) != null;
+    }
+
+    public void removeTable(String name) {
+        tables.remove(normalize(name));
+    }
+
+    public String normalize(String name) {
+        return name == null ? "" : name.trim().toUpperCase();
     }
 
     public void describeAll() {

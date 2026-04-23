@@ -1,7 +1,8 @@
 public class Node {
     int key;
     Record record;
-    Node left, right;
+    Node left;
+    Node right;
 
     public Node(int key, Record record) {
         this.key = key;

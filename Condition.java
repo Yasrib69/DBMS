@@ -1,10 +1,14 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Condition {
-
     static class Clause {
-        String attr, op, value;
+        String attr;
+        String op;
+        String value;
+        boolean quoted;
     }
 
     List<Clause> clauses = new ArrayList<>();
@@ -12,15 +16,15 @@ public class Condition {
 
     public Condition(String where) {
         if (where == null || where.trim().isEmpty()) {
-            throw new RuntimeException("Invalid WHERE clause");
+            throw new RuntimeException("Empty WHERE clause");
         }
 
         String normalized = where.trim();
         String[] parts = normalized.split("(?i)\\s+(AND|OR)\\s+");
 
         for (String part : parts) {
-            Clause c = new Clause();
             String trimmed = part.trim();
+            Clause c = new Clause();
 
             if (trimmed.contains(">=")) c.op = ">=";
             else if (trimmed.contains("<=")) c.op = "<=";
@@ -32,50 +36,81 @@ public class Condition {
 
             String[] sides = trimmed.split(Pattern.quote(c.op), 2);
             if (sides.length != 2) {
-                throw new RuntimeException("Invalid condition: " + trimmed);
+                throw new RuntimeException("Malformed condition: " + trimmed);
             }
 
             c.attr = sides[0].trim();
-            c.value = sides[1].trim().replace("\"", "");
+            String right = sides[1].trim();
+            c.quoted = right.startsWith("\"") && right.endsWith("\"") && right.length() >= 2;
+            c.value = c.quoted ? right.substring(1, right.length() - 1) : right;
             clauses.add(c);
         }
 
-        java.util.regex.Matcher matcher = Pattern.compile("(?i)\\s+(AND|OR)\\s+").matcher(normalized);
-        while (matcher.find()) {
-            ops.add(matcher.group(1).toUpperCase());
-        }
-
-        if (clauses.isEmpty()) {
-            throw new RuntimeException("Invalid WHERE clause");
+        Matcher m = Pattern.compile("(?i)\\s+(AND|OR)\\s+").matcher(normalized);
+        while (m.find()) {
+            ops.add(m.group(1).toUpperCase());
         }
     }
 
     public boolean evaluate(Record r, List<String> cols) {
         boolean result = eval(r, cols, clauses.get(0));
-
         for (int i = 1; i < clauses.size(); i++) {
             boolean next = eval(r, cols, clauses.get(i));
-
             if (ops.get(i - 1).equals("AND")) result = result && next;
             else result = result || next;
         }
-
         return result;
     }
 
     private boolean eval(Record r, List<String> cols, Clause c) {
-        int idx = cols.indexOf(c.attr);
-        if (idx < 0) {
+
+        int leftIdx = findColumnIndex(cols, c.attr);
+
+        if (leftIdx == -1) {
+            for (int i = 0; i < cols.size(); i++) {
+                String col = cols.get(i);
+                if (col.contains(".")) {
+                    String shortName = col.substring(col.indexOf('.') + 1);
+                    if (shortName.equalsIgnoreCase(c.attr.trim())) {
+                        leftIdx = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (leftIdx == -1) {
             throw new RuntimeException("Unknown column in WHERE: " + c.attr);
         }
 
-        String left = r.values[idx].trim();
+        String left = r.values[leftIdx].trim();
         String right = c.value.trim();
 
-        boolean numeric = isNumeric(left) && isNumeric(right);
-        if (numeric) {
+        if (!c.quoted) {
+            int rightIdx = findColumnIndex(cols, right);
+
+            if (rightIdx == -1) {
+                for (int i = 0; i < cols.size(); i++) {
+                    String col = cols.get(i);
+                    if (col.contains(".")) {
+                        String shortName = col.substring(col.indexOf('.') + 1);
+                        if (shortName.equalsIgnoreCase(right.trim())) {
+                            rightIdx = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (rightIdx >= 0) {
+                right = r.values[rightIdx].trim();
+            }
+        }
+
+        if (isNumeric(left) && isNumeric(right)) {
             double a = Double.parseDouble(left);
             double b = Double.parseDouble(right);
+
             switch (c.op) {
                 case "=": return a == b;
                 case "!=": return a != b;
@@ -83,11 +118,11 @@ public class Condition {
                 case "<": return a < b;
                 case ">=": return a >= b;
                 case "<=": return a <= b;
-                default: return false;
             }
         }
 
         int cmp = left.compareToIgnoreCase(right);
+
         switch (c.op) {
             case "=": return cmp == 0;
             case "!=": return cmp != 0;
@@ -95,8 +130,36 @@ public class Condition {
             case "<": return cmp < 0;
             case ">=": return cmp >= 0;
             case "<=": return cmp <= 0;
-            default: return false;
         }
+
+        return false;
+    }
+
+    private int findColumnIndex(List<String> cols, String target) {
+
+        String t = target.trim();
+
+        // direct match (table.column or column)
+        for (int i = 0; i < cols.size(); i++) {
+            if (cols.get(i).equalsIgnoreCase(t)) {
+                return i;
+            }
+        }
+
+        // unqualified match (column only)
+        for (int i = 0; i < cols.size(); i++) {
+            String col = cols.get(i);
+
+            if (col.contains(".")) {
+                String shortName = col.substring(col.indexOf('.') + 1);
+
+                if (shortName.equalsIgnoreCase(t)) {
+                    return i;
+                }
+            }
+        }
+
+        return -1;
     }
 
     private boolean isNumeric(String s) {

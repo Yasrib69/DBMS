@@ -5,26 +5,29 @@ public class DBMS {
         Scanner scanner = new Scanner(System.in);
         Parser parser = new Parser();
 
-        System.out.println("Mini DBMS Started");
+        System.out.println("Mini DBMS Started. Type commands ending with ';'. Type EXIT; to quit.");
 
         while (true) {
             System.out.print("> ");
 
-            String input = "";
-
-            while (!input.trim().endsWith(";")) {
-                input += scanner.nextLine() + " ";
+            StringBuilder input = new StringBuilder();
+            while (!input.toString().trim().endsWith(";")) {
+                if (!scanner.hasNextLine()) {
+                    parser.saveAll();
+                    scanner.close();
+                    return;
+                }
+                input.append(scanner.nextLine()).append(" ");
             }
 
-            input = input.trim();
-
-            if (input.toUpperCase().startsWith("EXIT")) {
+            String command = input.toString().trim();
+            if (command.equalsIgnoreCase("EXIT;")) {
                 parser.saveAll();
                 System.out.println("Saved. Exiting...");
                 break;
             }
 
-            parser.parse(input);
+            parser.parse(command);
         }
 
         scanner.close();
