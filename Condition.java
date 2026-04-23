@@ -170,4 +170,20 @@ public class Condition {
             return false;
         }
     }
+
+    public void validate(List<String> columns) {
+        try {
+            // Create a dummy record just to trigger column lookup
+            String[] dummyValues = new String[columns.size()];
+            Record dummy = new Record(dummyValues);
+
+            // This will fail if column does not exist
+            evaluate(dummy, columns);
+
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Column")) {
+                throw e;
+            }
+        }
+    }
 }

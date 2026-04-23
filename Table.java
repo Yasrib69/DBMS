@@ -49,11 +49,17 @@ public class Table {
         List<Record> result = new ArrayList<>();
         List<Record> source = primaryKey != null ? index.getAllRecords() : records;
 
+        // ✅ Validate WHERE BEFORE evaluation (critical fix)
+        if (cond != null) {
+            cond.validate(columns);
+        }
+
         for (Record r : source) {
             if (cond == null || cond.evaluate(r, columns)) {
                 result.add(r);
             }
         }
+
         return result;
     }
 
@@ -102,13 +108,12 @@ public class Table {
             nums.add(Double.parseDouble(r.values[idx].trim()));
         }
 
-        double result;
-        switch (actualFunc) {
-            case "MIN": result = Collections.min(nums); break;
-            case "MAX": result = Collections.max(nums); break;
-            case "AVG": result = nums.stream().mapToDouble(d -> d).average().orElse(0); break;
-            default: throw new RuntimeException("Unsupported aggregate: " + func);
-        }
+        double result = switch (actualFunc) {
+            case "MIN" -> Collections.min(nums);
+            case "MAX" -> Collections.max(nums);
+            case "AVG" -> nums.stream().mapToDouble(d -> d).average().orElse(0);
+            default -> throw new RuntimeException("Unsupported aggregate: " + func);
+        };
 
         System.out.println(actualFunc + " = " + result);
     }
@@ -138,41 +143,25 @@ public class Table {
     }
 
     public void update(Map<String, String> assignments, Condition cond) {
-        
 
+        // ✅ Validate columns ONCE (fix repeated errors)
         for (Map.Entry<String, String> entry : assignments.entrySet()) {
-            int idx = findColumnIndexLoose(entry.getKey());
-
-            if (idx == -1) {
-                for (int i = 0; i < columns.size(); i++) {
-                    if (columns.get(i).equalsIgnoreCase(entry.getKey().trim())) {
-                        idx = i;
-                        break;
-                    }
-                }
-            }
-
+            int idx = findColumnIndex(entry.getKey());
             if (idx == -1) {
                 throw new RuntimeException("Unknown column in SET: " + entry.getKey());
             }
         }
 
+        // ✅ Validate WHERE before execution (consistency fix)
+        if (cond != null) {
+            cond.validate(columns);
+        }
+
+        // ✅ Perform updates
         for (Record r : records) {
             if (cond == null || cond.evaluate(r, columns)) {
-
                 for (Map.Entry<String, String> entry : assignments.entrySet()) {
-
                     int idx = findColumnIndex(entry.getKey());
-
-                    if (idx == -1) {
-                        for (int i = 0; i < columns.size(); i++) {
-                            if (columns.get(i).equalsIgnoreCase(entry.getKey().trim())) {
-                                idx = i;
-                                break;
-                            }
-                        }
-                    }
-
                     String val = entry.getValue().trim().replace("\"", "");
                     validateDomain(idx, val);
                     r.values[idx] = val;
@@ -220,9 +209,20 @@ public class Table {
         FileManager.saveIndex(currentDB, name, index.getAllKeys());
     }
 
-    public int findColumnIndex(String col) {
+    public int findColumnIndex(String colName) {
+        String t = colName.trim();
         for (int i = 0; i < columns.size(); i++) {
-            if (columns.get(i).equalsIgnoreCase(col.trim())) return i;
+            if (columns.get(i).equalsIgnoreCase(t)) {
+                return i;
+            }
+        }
+        String targetShortName = t.contains(".") ? t.substring(t.indexOf('.') + 1) : t;
+        for (int i = 0; i < columns.size(); i++) {
+            String col = columns.get(i);
+            String colShortName = col.contains(".") ? col.substring(col.indexOf('.') + 1) : col;
+            if (colShortName.equalsIgnoreCase(targetShortName)) {
+                return i;
+            }
         }
         return -1;
     }
@@ -230,16 +230,17 @@ public class Table {
     private void validateDomain(int idx, String rawValue) {
         String type = types.get(idx).toUpperCase();
         String value = rawValue.trim().replace("\"", "");
+
         if (type.equals("INTEGER")) {
             try {
                 Integer.parseInt(value);
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 throw new RuntimeException("Domain constraint violation on column " + columns.get(idx));
             }
         } else if (type.equals("FLOAT")) {
             try {
                 Double.parseDouble(value);
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 throw new RuntimeException("Domain constraint violation on column " + columns.get(idx));
             }
         }
@@ -263,48 +264,16 @@ public class Table {
         if (primaryKey == null) return;
         int pkIndex = findColumnIndex(primaryKey);
         for (Record r : records) {
-            int key = (int) Double.parseDouble(r.values[pkIndex].trim());
+            int key;
+            try {
+                key = (int) Double.parseDouble(r.values[pkIndex].trim());
+            } catch (NumberFormatException e) {
+                key = r.values[pkIndex].trim().hashCode();
+            }
             index.insert(key, r);
         }
     }
 
-    private int findColumnIndexLoose(List<String> cols, String target) {
-    String t = target.trim();
-        for (int i = 0; i < cols.size(); i++) {
-            String col = cols.get(i);
-            if (col.equalsIgnoreCase(t)) return i;
-            int dot = col.indexOf('.');
-            if (dot >= 0) {
-                String shortName = col.substring(dot + 1);
-                if (shortName.equalsIgnoreCase(t)) return i;
-            }
-        }
-        return -1;
-    }
 
-    private int findColumnIndexLoose(String target) {
-
-    String t = target.trim();
-
-        for (int i = 0; i < columns.size(); i++) {
-            if (columns.get(i).equalsIgnoreCase(t)) {
-                return i;
-            }
-        }
-
-        for (int i = 0; i < columns.size(); i++) {
-            String col = columns.get(i);
-
-            if (col.contains(".")) {
-                String shortName = col.substring(col.indexOf('.') + 1);
-
-                if (shortName.equalsIgnoreCase(t)) {
-                    return i;
-                }
-            }
-        }
-
-        return -1;
-    }
 
 }

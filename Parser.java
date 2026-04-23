@@ -210,7 +210,11 @@ public class Parser {
     }
 
     private void select(String input) {
-        QueryResult result = executeSelect(input);
+    QueryResult result = executeSelect(input);
+
+        if (result.columns.isEmpty() && result.rows.isEmpty()) {
+            return;
+        }
 
         String upper = input.toUpperCase();
         int fromIdx = upper.indexOf("FROM");

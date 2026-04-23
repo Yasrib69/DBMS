@@ -2,34 +2,35 @@ import java.util.Scanner;
 
 public class DBMS {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Parser parser = new Parser();
 
-        System.out.println("Mini DBMS Started. Type commands ending with ';'. Type EXIT; to quit.");
+        try (Scanner scanner = new Scanner(System.in)) {
 
-        while (true) {
-            System.out.print("> ");
+            Parser parser = new Parser();
 
-            StringBuilder input = new StringBuilder();
-            while (!input.toString().trim().endsWith(";")) {
-                if (!scanner.hasNextLine()) {
-                    parser.saveAll();
-                    scanner.close();
-                    return;
+            System.out.println("Mini DBMS Started. Type commands ending with ';'. Type EXIT; to quit.");
+
+            while (true) {
+                System.out.print("> ");
+
+                StringBuilder input = new StringBuilder();
+                while (!input.toString().trim().endsWith(";")) {
+                    if (!scanner.hasNextLine()) {
+                        parser.saveAll();
+                        return;
+                    }
+                    input.append(scanner.nextLine()).append(" ");
                 }
-                input.append(scanner.nextLine()).append(" ");
-            }
 
-            String command = input.toString().trim();
-            if (command.equalsIgnoreCase("EXIT;")) {
-                parser.saveAll();
-                System.out.println("Saved. Exiting...");
-                break;
-            }
+                String command = input.toString().trim();
 
-            parser.parse(command);
+                if (command.equalsIgnoreCase("EXIT;")) {
+                    parser.saveAll();
+                    System.out.println("Saved. Exiting...");
+                    break;
+                }
+
+                parser.parse(command);
+            }
         }
-
-        scanner.close();
     }
 }
