@@ -1,0 +1,227 @@
+PS D:\EMU\Winter-2026\COSC471 - DataBase\Project>  d:; cd 'd:\EMU\Winter-2026\COSC471 - DataBase\Project'; & 'D:\openjdk-23.0.1_windows-x64_bin\jdk-23.0.1\bin\java.exe' '-XX:+ShowCodeDetailsInExceptionMessages' '-cp' 'C:\Users\mosiu\AppData\Roaming\Code\User\workspaceStorage\63d87cf389ed3c8a1b0cce8f42ea3654\redhat.java\jdt_ws\Project_a4afed66\bin' 'DBMS' 
+Mini DBMS Started. Type commands ending with ';'. Type EXIT; to quit.
+> create database university;
+Database created: university
+> use university;
+Using database: university
+> create table x(id integer , name text);
+Table created: x
+> create table student(a
+
+text );
+Table created: student
+> select x,y,z
+
+from student
+
+where x=y or y!=z;
+Error: Unknown column: x
+> describe student;
+
+student
+a: TEXT
+> let x select id,name from student;
+Error: Unknown column: id
+> rename x(a,b,c)
+
+;
+Error: Column count mismatch: table has 2 columns but got 3 new names
+> insert  student values("abc","x","aaa",1,2,"yy"
+
+)
+
+;
+Error: Column count mismatch: expected 1 values but got 6
+> insert  student values("abc","x","aaa",1,2.345,"yy");
+
+update student set x="abc",y=1,z="dd"
+
+;
+Error: Column count mismatch: expected 1 values but got 6
+> Error: Unknown column in SET: x
+> update student set x="abc",y=1,z="dd" where a<=b
+
+;
+Error: Unknown column in SET: x
+> update student set x="abc",y=1,z="dd" where a>c or
+
+b=d
+
+;
+Error: Unknown column in SET: x
+> update student set x="abc",y=1,z="dd"
+
+;
+Error: Unknown column in SET: x
+> delete
+
+student
+
+;
+Table deleted: student
+> delete
+
+x;
+Table deleted: x
+> use y;
+Error: Database 'y' does not exist
+> Create student;
+Error: Unknown CREATE variant
+> select from student;
+Error: No columns specified in SELECT
+> select student;
+Error: Missing FROM clause
+> create table student();
+Error: Table must have at least one column
+> create table student(id,id);
+Error: Invalid column definition: id
+> use;
+Error: Usage: USE <name>;
+> rename student);
+Error: Table 'student' does not exist
+> create database db3;
+Database created: db3
+> use db3;
+Using database: db3
+> create table st(id integer primary key, name text, gpa float);
+Table created: st
+> create table prof
+
+(pname text 
+
+,
+
+ssn integer);
+Table created: prof
+> insert  st values (3, "C", 3.0);
+Inserted into st
+> insert  st values (2, "B", 2.0); 
+Inserted into st
+> insert  st values (
+
+1, "Abe", 3.5);
+Inserted into st
+> insert  st values (2, "Berror", 2.0);
+Error: Duplicate primary key: 2
+> insert  st values (5, "E", 5); insert  st values (4, "D", 4.44); 
+Inserted into st
+> insert  st values (6, "F", 6.0); 
+Inserted into st
+> insert  st values (4, "Derror", 2.0); 
+Inserted into st
+> insert  prof values ("ABE", 11);
+Inserted into prof
+> insert  prof values ("C", 33);
+Inserted into prof
+> let st2 KEY ssn select name, gpa, ssn from st,prof where pname=name or gpa=3.0;
+Error: Duplicate primary key: 11
+> select name, gpa, ssn from st2;
+Error: Table 'st2' does not exist
+> select name, gpa, ssn from st2 where ssn=2;
+Error: Table 'st2' does not exist
+> select name, gpa, ssn from st2 where ssn=2 and gpa=3.0;
+Error: Table 'st2' does not exist
+> select name, gpa, ssn from st2 where ssn=2 and gpa!=3.0;
+Error: Table 'st2' does not exist
+> select name, gpa, ssn from st,prof where pname=name;
+name | gpa | ssn
+1. Abe | 3.5 | 11
+2. C | 3.0 | 33
+> select name,ssn from prof,st where name=pname and gpa=3.0;
+name | ssn
+1. C | 33
+> select name,ssn from prof,st where name=pname or gpa=2.0;
+name | ssn
+1. Abe | 11
+2. B | 11
+3. Derror | 11
+4. B | 33
+5. C | 33
+6. Derror | 33
+> select name,ssn from prof,st where name=pname and pname="C" and gpa=3.0;
+name | ssn
+1. C | 33
+> select gpa from student where gpa>=3.0 and gpa!=4.44;
+Error: Table 'student' does not exist
+> select name, gpa from student where id=3 and gpa=3.0 and name="C";
+Error: Table 'student' does not exist
+> select name, gpa from student where id!=3 and gpa=3.0 and name="C";
+Error: Table 'student' does not exist
+> create table third (x integer);
+Table created: third
+> insert  third values(1);
+Inserted into third
+> insert  
+third values(2);
+Inserted into third
+> select name, ssn, x from third, st, prof where name=pname and id=x;
+name | ssn | x
+1. Abe | 11 | 1
+> delete st where name="Abe";
+Deleted matching rows from st
+> delete prof where ssn>=33;
+Deleted matching rows from prof
+> select ssn from prof;
+ssn
+1. 11
+> select name, gpa, ssn from st,prof where pname=name;
+Nothing found
+> describe prof;
+
+prof
+pname: TEXT
+ssn: INTEGER
+> describe all;
+
+st
+id: INTEGER PRIMARY KEY
+name: TEXT
+gpa: FLOAT
+
+prof
+pname: TEXT
+ssn: INTEGER
+
+third
+x: INTEGER
+> update st set gpa=0.00, name="X" where gpa != 4.0;
+Updated table: st
+> select name, gpa from student;
+Error: Table 'student' does not exist
+> update st set name="abc", gpa=1.1 where id=1;
+Updated table: st
+> update st set name="abc",id=2, gpa=3.0 where id < gpa;
+Updated table: st
+>  Select name, gpa, id from st;
+name | gpa | id
+1. X | 0.00 | 2
+2. X | 0.00 | 3
+3. X | 0.00 | 4
+4. X | 0.00 | 5
+5. X | 0.00 | 6
+> rename st (x,y,z);
+Renamed columns of table: st
+> select y, z from st;
+y | z
+1. X | 0.00
+2. X | 0.00
+3. X | 0.00
+4. X | 0.00
+5. X | 0.00
+> describe st;
+
+st
+x: INTEGER PRIMARY KEY
+y: TEXT
+z: FLOAT
+> Select max(gpa) from st;
+Error: Unknown column: gpa
+> Select min(gpa) from st where id>2 and name="John Doe";
+Error: Unknown column in WHERE: id
+> Select average(gpa) from st where id>2;
+Error: Unknown column in WHERE: id
+> Select count(*) from st where id>2 or name="John Doe";
+Error: Unknown column in WHERE: id
+> exit;
+Saved. Exiting...
+PS D:\EMU\Winter-2026\COSC471 - DataBase\Project> 

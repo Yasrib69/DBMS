@@ -1,0 +1,122 @@
+Database 'university' already exists
+Using database: university
+Table created: x
+Table created: student
+Error: Unknown column: x
+
+student
+a: TEXT
+Error: Unknown column: id
+Error: Column count mismatch: table has 2 columns but got 3 new names
+Error: Column count mismatch: expected 1 values but got 6
+Error: Column count mismatch: expected 1 values but got 6
+Error: Unknown column in SET: x
+Error: Unknown column in SET: x
+Error: Unknown column in SET: x
+Error: Unknown column in SET: x
+Table deleted: student
+Table deleted: x
+Error: Database 'y' does not exist
+Error: Unknown CREATE variant
+Error: No columns specified in SELECT
+Error: Missing FROM clause
+Error: Table must have at least one column
+Error: Invalid column definition: id
+Error: Usage: USE <name>;
+Error: Table 'student' does not exist
+Database 'db3' already exists
+Using database: db3
+Table created: st
+Table created: prof
+Inserted into st
+Inserted into st
+Inserted into st
+Error: Duplicate primary key: 2
+Inserted into st
+Inserted into st
+Inserted into st
+Inserted into prof
+Inserted into prof
+Error: Duplicate primary key: 11
+Error: Table 'st2' does not exist
+Nothing found
+Error: Table 'st2' does not exist
+Nothing found
+Error: Table 'st2' does not exist
+Nothing found
+Error: Table 'st2' does not exist
+Nothing found
+name | gpa | ssn
+1. Abe | 3.5 | 11
+2. C | 3.0 | 33
+name | ssn
+1. C | 33
+name | ssn
+1. Abe | 11
+2. B | 11
+3. Derror | 11
+4. B | 33
+5. C | 33
+6. Derror | 33
+name | ssn
+1. C | 33
+Error: Table 'student' does not exist
+Nothing found
+Error: Table 'student' does not exist
+Nothing found
+Error: Table 'student' does not exist
+Nothing found
+Table created: third
+Inserted into third
+Inserted into third
+name | ssn | x
+1. Abe | 11 | 1
+Deleted matching rows from st
+Deleted matching rows from prof
+ssn
+1. 11
+Nothing found
+
+prof
+pname: TEXT
+ssn: INTEGER
+
+st
+id: INTEGER PRIMARY KEY
+name: TEXT
+gpa: FLOAT
+
+prof
+pname: TEXT
+ssn: INTEGER
+
+third
+x: INTEGER
+Updated table: st
+Error: Table 'student' does not exist
+Nothing found
+Updated table: st
+Updated table: st
+name | gpa | id
+1. X | 0.00 | 2
+2. X | 0.00 | 3
+3. X | 0.00 | 4
+4. X | 0.00 | 5
+5. X | 0.00 | 6
+Renamed columns of table: st
+y | z
+1. X | 0.00
+2. X | 0.00
+3. X | 0.00
+4. X | 0.00
+5. X | 0.00
+
+st
+x: INTEGER PRIMARY KEY
+y: TEXT
+z: FLOAT
+Error: Unknown column: gpa
+Error: Unknown column in WHERE: id
+Error: Unknown column in WHERE: id
+Error: Unknown column in WHERE: id
+Error: Unknown command

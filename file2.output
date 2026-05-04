@@ -1,0 +1,102 @@
+Mini DBMS Started. Type commands ending with ';'. Type EXIT; to quit.
+> Database 'university' already exists
+> Using database: university
+> Table created: x
+> Table created: student
+> Error: Unknown column: x
+> 
+student
+a: TEXT
+> Error: Unknown column: id
+> Error: Column count mismatch: table has 2 columns but got 3 new names
+> Error: Column count mismatch: expected 1 values but got 6
+> Error: Column count mismatch: expected 1 values but got 6
+> Error: Unknown column in SET: x
+> Error: Unknown column in SET: x
+> Error: Unknown column in SET: x
+> Error: Unknown column in SET: x
+> All rows deleted from student
+> All rows deleted from x
+> Error: Database 'y' does not exist
+> Error: Unknown CREATE variant
+> Error: No columns specified in SELECT
+> Error: Missing FROM clause
+> Error: Table 'student' already exists
+> Error: Table 'student' already exists
+> Error: Usage: USE <name>;
+> Error: Expected '(' but got ')'
+> Database 'db3' already exists
+> Using database: db3
+> Error: Table 'st' already exists
+> Error: Table 'prof' already exists
+> Error: Duplicate primary key: 3
+> Error: Duplicate primary key: 2
+> Inserted into st
+> Error: Duplicate primary key: 2
+> Error: Duplicate primary key: 5
+> Error: Duplicate primary key: 4
+> Error: Duplicate primary key: 6
+> Error: Duplicate primary key: 4
+> Inserted into prof
+> Inserted into prof
+> Error: LET supports only one source table
+> Error: Table 'st2' does not exist
+> Error: Table 'st2' does not exist
+> Error: Table 'st2' does not exist
+> Error: Table 'st2' does not exist
+> Error: Multi-table SELECT is not supported
+> Error: Multi-table SELECT is not supported
+> Error: Multi-table SELECT is not supported
+> Error: Multi-table SELECT is not supported
+> Error: Table 'student' does not exist
+> Error: Table 'student' does not exist
+> Error: Table 'student' does not exist
+> Error: Table 'third' already exists
+> Inserted into third
+> Inserted into third
+> Error: Multi-table SELECT is not supported
+> Error: Unknown column in WHERE: name
+> Deleted matching rows from prof
+> ssn
+1. 11
+2. 11
+> Error: Multi-table SELECT is not supported
+> 
+prof
+pname: TEXT
+ssn: INTEGER
+> 
+st
+x: INTEGER PRIMARY KEY
+y: TEXT
+z: FLOAT
+
+third
+x: INTEGER
+
+prof
+pname: TEXT
+ssn: INTEGER
+> Error: Unknown column in SET: gpa
+> Error: Table 'student' does not exist
+> Error: Unknown column in SET: name
+> Error: Unknown column in SET: name
+> Error: Unknown column: name
+> Renamed columns of table: st
+> y | z
+1. Abe | 3.5
+2. X | 0.00
+3. X | 0.00
+4. X | 0.00
+5. X | 0.00
+6. X | 0.00
+> 
+st
+x: INTEGER PRIMARY KEY
+y: TEXT
+z: FLOAT
+> Error: Unknown column: gpa
+> Error: Unknown column in WHERE: id
+> Error: Unknown column in WHERE: id
+> Error: Unknown column in WHERE: id
+> Saved. Exiting...

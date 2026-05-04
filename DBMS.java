@@ -3,33 +3,34 @@ import java.util.Scanner;
 public class DBMS {
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
-        Parser parser = new Parser();
+        try (Scanner scanner = new Scanner(System.in)) {
 
-        System.out.println("Mini DBMS Started");
+            Parser parser = new Parser();
 
-        while (true) {
-            System.out.print("> ");
+            System.out.println("Mini DBMS Started. Type commands ending with ';'. Type EXIT; to quit.");
 
-            String input = "";
+            while (true) {
+                System.out.print("> ");
 
-            // Read until semicolon
-            while (!input.trim().endsWith(";")) {
-                input += scanner.nextLine() + " ";
+                StringBuilder input = new StringBuilder();
+                while (!input.toString().trim().endsWith(";")) {
+                    if (!scanner.hasNextLine()) {
+                        parser.saveAll();
+                        return;
+                    }
+                    input.append(scanner.nextLine()).append(" ");
+                }
+
+                String command = input.toString().trim();
+
+                if (command.equalsIgnoreCase("EXIT;")) {
+                    parser.saveAll();
+                    System.out.println("Saved. Exiting...");
+                    break;
+                }
+
+                parser.parse(command);
             }
-
-            input = input.trim();
-
-            // 🔥 FIXED EXIT (handles all cases)
-            if (input.toUpperCase().startsWith("EXIT")) {
-                parser.saveAll();  // 🔥 VERY IMPORTANT
-                System.out.println("Saved. Exiting...");
-                break;
-            }
-
-            parser.parse(input);
         }
-
-        scanner.close();
     }
 }
